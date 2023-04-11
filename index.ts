@@ -5,9 +5,23 @@ import { productController } from "./controllers/productController";
 import { supermarketController } from "./controllers/supermarketController";
 import { inventoryController } from "./controllers/inventoryController";
 import { shoppingListController } from "./controllers/shoppingListController";
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerDefinition from './swaggerDefinition';
 
 const app = express();
 app.use(express.json());
+
+// Swagger configuration
+const options = {
+  swaggerDefinition,
+  apis: ['./controllers/*.ts'], // Point to your controller files
+};
+
+const specs = swaggerJsdoc(options);
+
+// Serve Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // Use the controllers as middleware
 app.use('/users', userController);

@@ -6,6 +6,87 @@ import { CustomRequest } from '../types';
 const prisma = new PrismaClient();
 const router = express.Router();
 
+/**
+ * @swagger
+ * /shoppingList:
+ *   post:
+ *     summary: Create a new shopping list
+ *     description: Create a new shopping list with the provided city and shopping items.
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               city:
+ *                 type: string
+ *                 description: The city where the shopping will take place.
+ *               shoppingItems:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     productId:
+ *                       type: integer
+ *                       description: The product ID.
+ *                     quantity:
+ *                       type: integer
+ *                       description: The quantity of the product.
+ *             example:
+ *               city: "New York"
+ *               shoppingItems:
+ *                 - productId: 1
+ *                   quantity: 2
+ *     responses:
+ *       201:
+ *         description: The created shopping list.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 userEmail:
+ *                   type: string
+ *                   description: The user's email.
+ *                 currentDate:
+ *                   type: string
+ *                   format: date-time
+ *                   description: The current date.
+ *                 city:
+ *                   type: string
+ *                   description: The city where the shopping will take place.
+ *                 shoppingItems:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       productName:
+ *                         type: string
+ *                         description: The product's name.
+ *                       supermarketName:
+ *                         type: string
+ *                         description: The supermarket's name.
+ *                       quantity:
+ *                         type: integer
+ *                         description: The quantity of the product.
+ *                       lowestPrice:
+ *                         type: number
+ *                         format: float
+ *                         description: The lowest price for the product.
+ *                       subtotal:
+ *                         type: number
+ *                         format: float
+ *                         description: The subtotal price for the product.
+ *                 total:
+ *                   type: number
+ *                   format: float
+ *                   description: The total price of the shopping list.
+ *       500:
+ *         description: An error occurred while creating the shopping list.
+ */
 // Create a new shopping list
 router.post('/', authGuard, async (req: CustomRequest, res: Response) => {
   const { city, shoppingItems } = req.body;
