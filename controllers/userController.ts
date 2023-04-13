@@ -9,6 +9,32 @@ const prisma = new PrismaClient();
 const router = Router();
 
 
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     summary: Create a new user
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: The created user
+ *       500:
+ *         description: An error occurred while creating the user
+ */
 router.post("/", async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;
@@ -39,6 +65,62 @@ router.post("/", async (req: Request, res: Response) => {
     }
   });
 
+/**
+ * @swagger
+ * /users/{email}/profile:
+ *   post:
+ *     summary: Add a profile for an existing user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         schema:
+ *           type: string
+ *           format: email
+ *         required: true
+ *         description: Email of the user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               address1:
+ *                 type: string
+ *               city1:
+ *                 type: string
+ *               address2:
+ *                 type: string
+ *               city2:
+ *                 type: string
+ *               address3:
+ *                 type: string
+ *               city3:
+ *                 type: string
+ *               address4:
+ *                 type: string
+ *               city4:
+ *                 type: string
+ *               dob:
+ *                 type: string
+ *                 format: date
+ *     responses:
+ *       200:
+ *         description: Successfully added user profile
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: An error occurred while adding the user profile
+ */
   router.use(authGuard);
   router.post("/:email/profile", async (req: Request, res: Response) => {
     try {
@@ -119,7 +201,62 @@ router.post("/", async (req: Request, res: Response) => {
     }
     return age;
   }
-  
+  /**
+ * @swagger
+ * /users/{email}/profile:
+ *   patch:
+ *     summary: Update the profile for an existing user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         schema:
+ *           type: string
+ *           format: email
+ *         required: true
+ *         description: Email of the user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               address1:
+ *                 type: string
+ *               city1:
+ *                 type: string
+ *               address2:
+ *                 type: string
+ *               city2:
+ *                 type: string
+ *               address3:
+ *                 type: string
+ *               city3:
+ *                 type: string
+ *               address4:
+ *                 type: string
+ *               city4:
+ *                 type: string
+ *               dob:
+ *                 type: string
+ *                 format: date
+ *     responses:
+ *       200:
+ *         description: Successfully updated user profile
+ *       404:
+ *         description: User or UserProfile not found
+ *       500:
+ *         description: An error occurred while updating the user profile
+ */
   router.patch("/:email/profile", async (req: Request, res: Response) => {
     try {
       const { email } = req.params;
@@ -186,7 +323,24 @@ router.post("/", async (req: Request, res: Response) => {
   });
 
 
-  
+ /**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Get a list of all users
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ */ 
 
   router.get("/", async (req: Request, res: Response) => {
     const users = await prisma.user.findMany({
@@ -205,7 +359,32 @@ router.post("/", async (req: Request, res: Response) => {
   const removeNullFields = (obj: any) => {
     return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== null));
   };
-  
+ /**
+ * @swagger
+ * /users/{email}:
+ *   get:
+ *     summary: Get a user by email
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         schema:
+ *           type: string
+ *           format: email
+ *         required: true
+ *         description: Email of the user
+ *     responses:
+ *       200:
+ *         description: Successfully retrieved user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       404:
+ *         description: User not found
+ */ 
   router.get("/:email", async (req: Request, res: Response) => {
     const { email } = req.params;
     const user = await prisma.user.findUnique({
@@ -231,7 +410,40 @@ router.post("/", async (req: Request, res: Response) => {
     res.json({ ...user, userProfile });
   });
   
-  // Update user password by email
+/**
+ * @swagger
+ * /users/{email}:
+ *   patch:
+ *     summary: Update a user's password
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         schema:
+ *           type: string
+ *           format: email
+ *         required: true
+ *         description: Email of the user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - password
+ *             properties:
+ *               password:
+ *                 type: string
+ *                 format: password
+ *     responses:
+ *       200:
+ *         description: Successfully updated user password
+ *       500:
+ *         description: An error occurred while updating the user password
+ */
   router.patch("/:email", async (req: Request, res: Response) => {
     try {
       const email = req.params.email;
@@ -265,7 +477,28 @@ router.post("/", async (req: Request, res: Response) => {
     }
   });
   
-  // Delete user by email
+/**
+ * @swagger
+ * /users/{email}:
+ *   delete:
+ *     summary: Delete a user by email
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: email
+ *         schema:
+ *           type: string
+ *           format: email
+ *         required: true
+ *         description: Email of the user
+ *     responses:
+ *       200:
+ *         description: Successfully deleted user
+ *       500:
+ *         description: An error occurred while deleting the user
+ */
   router.delete("/:email", async (req: Request, res: Response) => {
     try {
       const email = req.params.email;
@@ -291,7 +524,29 @@ router.post("/", async (req: Request, res: Response) => {
   });
 
 
-  //promote an existing user to ADMIN role
+/**
+ * @swagger
+ * /users/{userId}/promote:
+ *   patch:
+ *     summary: Promote a user to the ADMIN role
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID of the user
+ *     responses:
+ *       200:
+ *         description: Successfully promoted user to ADMIN role
+ *       403:
+ *         description: Insufficient permissions
+ *       500:
+ *         description: An error occurred while promoting the user
+ */    
   router.patch('/:userId/promote', authGuard, async (req: CustomRequest, res: Response) => {
     const { userId } = req.params;
   
@@ -313,6 +568,29 @@ router.post("/", async (req: Request, res: Response) => {
     }
   });
 
+/**
+ * @swagger
+ * /users/{userId}/demote:
+ *   patch:
+ *     summary: Demote a user to the VERIFIED role
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: ID of the user
+ *     responses:
+ *       200:
+ *         description: Successfully demoted user to VERIFIED role
+ *       403:
+ *         description: Insufficient permissions
+ *       500:
+ *         description: An error occurred while demoting the user
+ */  
   router.patch('/:userId/demote', authGuard, async (req: CustomRequest, res: Response) => {
     const { userId } = req.params;
   

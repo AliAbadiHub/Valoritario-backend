@@ -14,6 +14,39 @@ function toProductCategory(category: string): ProductCategory | null {
   return null;
 }
 
+/**
+ * @swagger
+ * /inventory:
+ *   post:
+ *     summary: Create a new inventory entry
+ *     tags: [Inventory]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - price
+ *               - productId
+ *               - supermarketId
+ *             properties:
+ *               price:
+ *                 type: number
+ *               productId:
+ *                 type: string
+ *               supermarketId:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: The created inventory entry
+ *       403:
+ *         description: Insufficient permissions
+ *       500:
+ *         description: An error occurred while creating the inventory entry
+ */
 // Create a new inventory entry (accessible to VERIFIED and ADMIN roles)
 router.post('/', authGuard, async (req: CustomRequest, res: Response) => {
   if (req.user.role !== 'VERIFIED' && req.user.role !== 'ADMIN') {
@@ -65,7 +98,20 @@ router.post('/', authGuard, async (req: CustomRequest, res: Response) => {
     res.status(500).json({ error: 'An error occurred while creating the inventory entry.' });
   }
 });
-// Get all inventory entries
+/**
+ * @swagger
+ * /inventory:
+ *   get:
+ *     summary: Get all inventory entries
+ *     tags: [Inventory]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: The list of inventory entries
+ *       500:
+ *         description: An error occurred while fetching inventory entries
+ */
 router.get('/', authGuard, async (req: CustomRequest, res: Response) => {
   try {
     const inventories = await prisma.inventory.findMany({
@@ -102,7 +148,37 @@ router.get('/', authGuard, async (req: CustomRequest, res: Response) => {
   }
 });
 
-// Find the cheapest listing of a product in a city
+/**
+ * @swagger
+ * /inventory/cheapest/{productId}/{city}:
+ *   get:
+ *     summary: Find the cheapest listing of a product in a city
+ *     tags: [Inventory]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: productId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the product
+ *       - in: path
+ *         name: city
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The city name
+ *     responses:
+ *       200:
+ *         description: The cheapest listing of the product in the city
+ *       403:
+ *         description: Insufficient permissions
+ *       404:
+ *         description: No listing found for the given product and city
+ *       500:
+ *         description: An error occurred while fetching the cheapest listing
+ */
 router.get('/cheapest/:productId/:city', authGuard, async (req: CustomRequest, res: Response) => {
   const allowedRoles = ['BASIC', 'VERIFIED', 'ADMIN'];
 
@@ -153,7 +229,27 @@ router.get('/cheapest/:productId/:city', authGuard, async (req: CustomRequest, r
   }
 });
 
-// Get all inventory items in a given supermarket
+/**
+ * @swagger
+ * /inventory/supermarket/{supermarketId}:
+ *   get:
+ *     summary: Get all inventory items in a given supermarket
+ *     tags: [Inventory]
+ *     parameters:
+ *       - in: path
+ *         name: supermarketId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the supermarket
+ *     responses:
+ *       200:
+ *         description: The list of items in the supermarket
+ *       404:
+ *         description: No items found in the given supermarket
+ *       500:
+ *         description: An error occurred while fetching the items in the supermarket
+ */
 router.get('/supermarket/:supermarketId', async (req: Request, res: Response) => {
   const { supermarketId } = req.params;
 
@@ -190,7 +286,37 @@ router.get('/supermarket/:supermarketId', async (req: Request, res: Response) =>
   }
 });
 
-// Get the lowest price of every item in a given product category within a city
+/**
+ * @swagger
+ * /inventory/category/{city}/{productCategory}:
+ *   get:
+ *     summary: Get the lowest price of every item in a given product category within a city
+ *     tags: [Inventory]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: city
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The city name
+ *       - in: path
+ *         name: productCategory
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The product category
+ *     responses:
+ *       200:
+ *         description: The list of products and their lowest prices in the specified category and city
+ *       400:
+ *         description: Invalid product category
+ *       403:
+ *         description: Insufficient permissions
+ *       500:
+ *         description: An error occurred while fetching the products by category
+ */
 router.get('/category/:city/:productCategory', authGuard, async (req: CustomRequest, res: Response) => {
   if (req.user.role !== 'ADMIN' && req.user.role !== 'VERIFIED') {
     return res.status(403).json({ message: 'Insufficient permissions.' });
@@ -252,7 +378,49 @@ router.get('/category/:city/:productCategory', authGuard, async (req: CustomRequ
 
 
 
-// Update an existing inventory entry (accessible to VERIFIED and ADMIN roles)
+/**
+ * @swagger
+ * /inventory/{supermarketId}/{productId}:
+ *   patch:
+ *     summary: Update an existing inventory entry
+ *     tags: [Inventory]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: supermarketId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the supermarket
+ *       - in: path
+ *         name: productId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the product
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - price
+ *               - inStock
+ *             properties:
+ *               price:
+ *                 type: number
+ *               inStock:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: The updated inventory entry
+ *       403:
+ *         description: Insufficient permissions
+ *       500:
+ *         description: An error occurred while updating the inventory entry
+ */
 router.patch('/:supermarketId/:productId', authGuard, async (req: CustomRequest, res: Response) => {
   if (req.user.role !== 'ADMIN' && req.user.role !== 'VERIFIED') {
     return res.status(403).json({ message: 'Insufficient permissions.' });
@@ -288,7 +456,35 @@ router.patch('/:supermarketId/:productId', authGuard, async (req: CustomRequest,
   }
 });
 
-// Delete an inventory entry (accessible to ADMIN role only)
+/**
+ * @swagger
+ * /inventory/{supermarketId}/{productId}:
+ *   delete:
+ *     summary: Delete an inventory entry
+ *     tags: [Inventory]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: supermarketId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the supermarket
+ *       - in: path
+ *         name: productId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The ID of the product
+ *     responses:
+ *       204:
+ *         description: Inventory entry deleted successfully
+ *       403:
+ *         description: Insufficient permissions
+ *       500:
+ *         description: An error occurred while deleting the inventory entry
+ */
 router.delete('/:supermarketId/:productId', authGuard, async (req: CustomRequest, res: Response) => {
   if (req.user.role !== 'ADMIN') {
     return res.status(403).json({ message: 'Insufficient permissions.' });
