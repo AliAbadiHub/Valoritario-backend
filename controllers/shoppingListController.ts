@@ -11,6 +11,7 @@ const router = express.Router();
  * /shoppingList:
  *   post:
  *     summary: Create a new shopping list
+ *     tags: [ShoppingList]
  *     description: Create a new shopping list with the provided city and shopping items.
  *     security:
  *       - BearerAuth: []

@@ -377,7 +377,6 @@ router.get('/category/:city/:productCategory', authGuard, async (req: CustomRequ
 });
 
 
-
 /**
  * @swagger
  * /inventory/{supermarketId}/{productId}:

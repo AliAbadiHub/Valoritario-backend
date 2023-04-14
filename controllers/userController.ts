@@ -201,6 +201,8 @@ router.post("/", async (req: Request, res: Response) => {
     }
     return age;
   }
+
+  
   /**
  * @swagger
  * /users/{email}/profile:
@@ -359,6 +361,7 @@ router.post("/", async (req: Request, res: Response) => {
   const removeNullFields = (obj: any) => {
     return Object.fromEntries(Object.entries(obj).filter(([_, v]) => v !== null));
   };
+
  /**
  * @swagger
  * /users/{email}:

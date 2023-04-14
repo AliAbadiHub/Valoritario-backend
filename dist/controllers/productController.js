@@ -10,6 +10,40 @@ const auth_guard_1 = require("../auth/auth.guard");
 const prisma = new client_1.PrismaClient();
 const router = express_1.default.Router();
 exports.productController = router;
+/**
+ * @swagger
+ * /products:
+ *   post:
+ *     summary: Create a new product
+ *     description: Create a new product. Requires VERIFIED or ADMIN role.
+ *     security:
+ *       - BearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               productName:
+ *                 type: string
+ *                 description: The product's name.
+ *               productCategory:
+ *                 type: string
+ *                 description: The product's category.
+ *               productComments:
+ *                 type: string
+ *                 description: Additional comments about the product.
+ *     responses:
+ *       201:
+ *         description: The created product.
+ *       400:
+ *         description: The product already exists in the database.
+ *       403:
+ *         description: Insufficient permissions.
+ *       500:
+ *         description: An error occurred while creating the product.
+ */
 // Create a new product (requires VERIFIED or ADMIN role)
 router.post('/', auth_guard_1.authGuard, async (req, res) => {
     if (req.user.role !== 'VERIFIED' && req.user.role !== 'ADMIN') {
@@ -51,6 +85,18 @@ router.post('/', auth_guard_1.authGuard, async (req, res) => {
         res.status(500).json({ error: 'An error occurred while creating the product.' });
     }
 });
+/**
+* @swagger
+* /products:
+*   get:
+*     summary: Get all products
+*     description: Get a list of all products.
+*     responses:
+*       200:
+*         description: A list of products.
+*       500:
+*         description: An error occurred while fetching products.
+*/
 router.get('/', async (req, res) => {
     try {
         const products = await prisma.product.findMany({
@@ -68,6 +114,27 @@ router.get('/', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while fetching products.' });
     }
 });
+/**
+* @swagger
+* /products/{id}:
+*   get:
+*     summary: Get a product by ID
+*     description: Get a product by its ID.
+*     parameters:
+*       - in: path
+*         name: id
+*         schema:
+*           type: integer
+*         required: true
+*         description: The product ID.
+*     responses:
+*       200:
+*         description: The product with the specified ID.
+*       404:
+*         description: Product not found.
+*       500:
+*         description: An error occurred while fetching the product.
+*/
 router.get('/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -92,6 +159,49 @@ router.get('/:id', async (req, res) => {
         res.status(500).json({ error: 'An error occurred while fetching the product.' });
     }
 });
+/**
+ * @swagger
+ * /products/{id}:
+ *   patch:
+ *     summary: Update a product by ID
+ *     description: Update a product by its ID. Requires VERIFIED or ADMIN role.
+ *     security:
+ *       - BearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The product ID.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               productName:
+ *                 type: string
+ *                 description: The product's name.
+ *               productCategory:
+ *                 type: string
+ *                 description: The product's category.
+ *               productComments:
+ *                 type: string
+ *                 description: Additional comments about the product.
+ *               price:
+ *                 type: number
+ *                 format: float
+  *                 description: The price of the product.
+ *     responses:
+ *       200:
+ *         description: The updated product.
+ *       403:
+ *         description: Insufficient permissions.
+ *       500:
+ *         description: An error occurred while updating the product.
+ */
 router.patch('/:id', auth_guard_1.authGuard, async (req, res) => {
     if (req.user.role !== 'VERIFIED' && req.user.role !== 'ADMIN') {
         return res.status(403).json({ message: 'Insufficient permissions.' });
@@ -143,6 +253,29 @@ router.patch('/:id', auth_guard_1.authGuard, async (req, res) => {
         res.status(500).json({ error: 'An error occurred while updating the product.' });
     }
 });
+/**
+* @swagger
+* /products/{id}:
+*   delete:
+*     summary: Delete a product by ID
+*     description: Delete a product by its ID. Requires ADMIN role.
+*     security:
+*       - BearerAuth: []
+*     parameters:
+*       - in: path
+*         name: id
+*         schema:
+*           type: integer
+*         required: true
+*         description: The product ID.
+*     responses:
+*       200:
+*         description: The deleted product and a success message.
+*       403:
+*         description: Insufficient permissions.
+*       500:
+*         description: An error occurred while deleting the product.
+*/
 // Delete a product (requires VERIFIED or ADMIN role)
 router.delete('/:id', auth_guard_1.authGuard, async (req, res) => {
     if (req.user.role !== 'ADMIN') {

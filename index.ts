@@ -15,7 +15,7 @@ app.use(express.json());
 // Swagger configuration
 const options = {
   swaggerDefinition,
-  apis: ['./controllers/*.ts', './auth/*.ts'], // Include both controller and auth files
+  apis: ['./controllers/*.{ts,js}', './auth/*.{ts,js}'], // Include both controller and auth files in TypeScript and JavaScript format
 };
 
 const specs = swaggerJsdoc(options);

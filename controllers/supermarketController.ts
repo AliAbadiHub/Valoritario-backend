@@ -7,7 +7,43 @@ import { authGuard } from '../auth/auth.guard';
 const router = Router();
 const prisma = new PrismaClient();
 
-// Create a new supermarket
+/**
+ * @swagger
+ * /supermarkets:
+ *   post:
+ *     summary: Create a new supermarket
+ *     tags: [Supermarkets]
+ *     description: Create a new supermarket. Requires ADMIN role.
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               supermarketName:
+ *                 type: string
+ *               supermarketComments:
+ *                 type: string
+ *               city:
+ *                 type: string
+ *             required:
+ *               - supermarketName
+ *               - city
+ *     responses:
+ *       201:
+ *         description: The created supermarket
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Supermarket'
+ *       403:
+ *         description: Insufficient permissions
+ *       500:
+ *         description: An error occurred while creating the supermarket
+ */
 router.post('/', authGuard, async (req: CustomRequest, res: Response) => {
   if (req.user.role !== 'ADMIN') {
     return res.status(403).json({ message: 'Insufficient permissions.' });
@@ -53,7 +89,28 @@ router.post('/', authGuard, async (req: CustomRequest, res: Response) => {
   }
 });
 
-// Get all supermarkets
+/**
+ * @swagger
+ * /supermarkets:
+ *   get:
+ *     summary: Get all supermarkets
+ *     tags: [Supermarkets]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: A list of supermarkets
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Supermarket'
+ *       403:
+ *         description: Insufficient permissions
+ *       500:
+ *         description: An error occurred while fetching supermarkets
+ */
 router.get('/', authGuard, async (req: CustomRequest, res: Response) => {
   if (!['BASIC', 'VERIFIED', 'ADMIN'].includes(req.user.role)) {
     return res.status(403).json({ message: 'Insufficient permissions.' });
@@ -74,7 +131,35 @@ router.get('/', authGuard, async (req: CustomRequest, res: Response) => {
   }
 });
 
-// Get a supermarket by ID
+/**
+ * @swagger
+ * /supermarkets/{id}:
+ *   get:
+ *     summary: Get a supermarket by ID
+ *     tags: [Supermarkets]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The supermarket ID
+ *     responses:
+ *       200:
+ *         description: The supermarket
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Supermarket'
+ *       403:
+ *         description: Insufficient permissions
+ *       404:
+ *         description: Supermarket not found
+ *       500:
+ *         description: An error occurred while fetching the supermarket
+ */
 router.get('/:id', authGuard, async (req: CustomRequest, res: Response) => {
   if (!['BASIC', 'VERIFIED', 'ADMIN'].includes(req.user.role)) {
     return res.status(403).json({ message: 'Insufficient permissions.' });
@@ -104,7 +189,49 @@ router.get('/:id', authGuard, async (req: CustomRequest, res: Response) => {
   }
 });
 
-// Update a supermarket by ID
+/**
+ * @swagger
+ * /supermarkets/{id}:
+ *   patch:
+ *     summary: Update a supermarket by ID
+ *     tags: [Supermarkets]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The supermarket ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               supermarketName:
+ *                 type: string
+ *               supermarketComments:
+ *                 type: string
+ *               city:
+ *                 type: string
+ *             required:
+ *               - supermarketName
+ *               - city
+ *     responses:
+ *       200:
+ *         description: The updated supermarket
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Supermarket'
+ *       403:
+ *         description: Insufficient permissions
+ *       500:
+ *         description: An error occurred while updating the supermarket
+ */
 router.patch('/:id', authGuard, async (req: CustomRequest, res: Response) => {
   if (req.user.role !== 'ADMIN') {
     return res.status(403).json({ message: 'Insufficient permissions.' });
@@ -137,7 +264,38 @@ router.patch('/:id', authGuard, async (req: CustomRequest, res: Response) => {
   }
 });
 
-// Delete a supermarket by ID
+/**
+ * @swagger
+ * /supermarkets/{id}:
+ *   delete:
+ *     summary: Delete a supermarket by ID
+ *     tags: [Supermarkets]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The supermarket ID
+ *     responses:
+ *       200:
+ *         description: Supermarket deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 deletedSupermarket:
+ *                   $ref: '#/components/schemas/Supermarket'
+ *       403:
+ *         description: Insufficient permissions
+ *       500:
+ *         description: An error occurred while deleting the supermarket
+ */
 router.delete('/:id', authGuard, async (req: CustomRequest, res: Response) => {
     if (req.user.role !== 'ADMIN') {
         return res.status(403).json({ message: 'Insufficient permissions.' });

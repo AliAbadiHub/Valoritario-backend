@@ -12,6 +12,7 @@ const router = express.Router();
  * /products:
  *   post:
  *     summary: Create a new product
+ *     tags: [Products]
  *     description: Create a new product. Requires VERIFIED or ADMIN role.
  *     security:
  *       - BearerAuth: []
@@ -94,6 +95,7 @@ router.post('/', authGuard, async (req: CustomRequest, res: Response) => {
  * /products:
  *   get:
  *     summary: Get all products
+ *     tags: [Products]
  *     description: Get a list of all products.
  *     responses:
  *       200:
@@ -101,7 +103,6 @@ router.post('/', authGuard, async (req: CustomRequest, res: Response) => {
  *       500:
  *         description: An error occurred while fetching products.
  */
-
   router.get('/', async (req: CustomRequest, res: Response) => {
     try {
       const products = await prisma.product.findMany({
@@ -125,7 +126,9 @@ router.post('/', authGuard, async (req: CustomRequest, res: Response) => {
  * /products/{id}:
  *   get:
  *     summary: Get a product by ID
- *     description: Get a product by its ID.
+ *     tags: [Products]
+ *     description: Get a product by its ID
+ *     security:
  *     parameters:
  *       - in: path
  *         name: id
@@ -141,8 +144,6 @@ router.post('/', authGuard, async (req: CustomRequest, res: Response) => {
  *       500:
  *         description: An error occurred while fetching the product.
  */
-
-
   router.get('/:id', async (req: CustomRequest, res: Response) => {
     const { id } = req.params;
     try {
@@ -167,12 +168,12 @@ router.post('/', authGuard, async (req: CustomRequest, res: Response) => {
   }
 });
 
-
 /**
  * @swagger
  * /products/{id}:
  *   patch:
  *     summary: Update a product by ID
+ *     tags: [Products]
  *     description: Update a product by its ID. Requires VERIFIED or ADMIN role.
  *     security:
  *       - BearerAuth: []
@@ -199,10 +200,6 @@ router.post('/', authGuard, async (req: CustomRequest, res: Response) => {
  *               productComments:
  *                 type: string
  *                 description: Additional comments about the product.
- *               price:
- *                 type: number
- *                 format: float
-  *                 description: The price of the product.
  *     responses:
  *       200:
  *         description: The updated product.
@@ -272,6 +269,7 @@ router.patch('/:id', authGuard, async (req: CustomRequest, res: Response) => {
  * /products/{id}:
  *   delete:
  *     summary: Delete a product by ID
+ *     tags: [Products]
  *     description: Delete a product by its ID. Requires ADMIN role.
  *     security:
  *       - BearerAuth: []
