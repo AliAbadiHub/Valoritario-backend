@@ -22,6 +22,10 @@ RUN npm rebuild argon2
 RUN npx prisma generate
 RUN npm run build
 
+# Copy the entrypoint.sh script and make it executable
+COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x entrypoint.sh
+
 EXPOSE 3333
 
-CMD [ "node", "dist/index.js" ]
+ENTRYPOINT ["/app/entrypoint.sh"]
