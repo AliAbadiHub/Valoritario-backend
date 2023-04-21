@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction, Application } from "express";
+import cors from "cors"; // Import CORS
 import { userController } from "./controllers/userController";
 import { authController } from "./auth/auth.controller";
 import { productController } from "./controllers/productController";
@@ -11,6 +12,7 @@ import swaggerDefinition from './swaggerDefinition';
 
 const app = express();
 app.use(express.json());
+app.use(cors()); // Enable CORS
 
 // Swagger configuration
 const options = {
@@ -41,7 +43,7 @@ app.use('/supermarket', supermarketController);
 app.use('/inventory', inventoryController);
 app.use('/shoppingList', shoppingListController);
 
-// Add this function to log the registered routes
+// Function to log the registered routes
 function logRegisteredRoutes(app: Application) {
   const registeredRoutes: string[] = [];
 
