@@ -20,6 +20,7 @@ COPY tsconfig.json ./
 RUN npm rebuild argon2
 
 RUN npx prisma generate
+RUN npm install --save-dev @types/cors
 RUN npm run build
 
 # Copy the entrypoint.sh script and make it executable
